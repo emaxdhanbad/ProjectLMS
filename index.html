@@ -1,0 +1,1358 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnFlow | Learning Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --bg-elevated: #111827;
+      --fg: #f1f5f9;
+      --muted: #64748b;
+      --accent: #06d6a0;
+      --accent-dim: rgba(6, 214, 160, 0.15);
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .bg-grid {
+      background-image: 
+        linear-gradient(rgba(6, 214, 160, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 214, 160, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(6, 214, 160, 0.2) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      bottom: -150px;
+      left: -100px;
+    }
+
+    .page {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .course-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(6, 214, 160, 0.3);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--fg);
+      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--fg);
+      font-size: 15px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .input-field::placeholder { color: var(--muted); }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .video-container {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .video-container video {
+      width: 100%;
+      display: block;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s ease;
+    }
+
+    .file-item:hover { border-color: var(--accent); }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in { animation: fadeInUp 0.6s ease forwards; }
+    .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal-content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-video { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .badge-pdf { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .badge-ppt { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-demo { background: rgba(6, 214, 160, 0.2); color: var(--accent); }
+
+    .sidebar {
+      width: 260px;
+      background: var(--bg-elevated);
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 30;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 8px;
+      margin: 4px 12px;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-link.active {
+      color: var(--fg);
+      background: var(--accent-dim);
+    }
+
+    .sidebar-link.active { color: var(--accent); }
+
+    .main-content {
+      margin-left: 260px;
+      padding: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+    }
+
+    .demo-banner {
+      background: linear-gradient(135deg, rgba(6, 214, 160, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .tab:hover { color: var(--fg); }
+
+    .tab.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .thumbnail-video {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumbnail-video::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      width: 60px;
+      height: 60px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .play-icon:hover { transform: translate(-50%, -50%) scale(1.1); }
+  </style>
+</head>
+<body class="bg-grid">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="page active">
+    <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+      <div class="w-full max-w-md">
+        <div class="text-center mb-10 animate-in stagger-1">
+          <div class="inline-flex items-center gap-3 mb-4">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect width="48" height="48" rx="12" fill="var(--accent)"/>
+              <path d="M16 16L32 24L16 32V16Z" fill="var(--bg)" stroke="var(--bg)" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <h1 class="text-3xl font-bold tracking-tight">LearnFlow</h1>
+          </div>
+          <p class="text-[var(--muted)]">Your gateway to knowledge</p>
+        </div>
+
+        <div class="course-card p-8 animate-in stagger-2">
+          <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
+          
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2 text-[var(--muted)]">Email Address</label>
+              <input type="email" id="email" class="input-field" placeholder="you@example.com" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2 text-[var(--muted)]">Password</label>
+              <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+            </div>
+            
+            <div id="loginError" class="hidden text-[var(--danger)] text-sm text-center py-2"></div>
+            
+            <button type="submit" class="btn-primary w-full mt-6">Sign In</button>
+          </form>
+
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-[var(--border)]"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-[var(--card)] text-[var(--muted)]">or continue with</span>
+            </div>
+          </div>
+
+          <button id="guestLogin" class="btn-secondary w-full flex items-center justify-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Continue as Guest
+          </button>
+
+          <div class="mt-6 p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
+            <p class="text-xs text-[var(--muted)] text-center">
+              Demo: <span class="text-[var(--accent)]">demo@learnflow.com</span> / <span class="text-[var(--accent)]">demo123</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="dashboardPage" class="page">
+    <aside class="sidebar" id="sidebar">
+      <div class="p-6 border-b border-[var(--border)]">
+        <div class="flex items-center gap-3">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="12" fill="var(--accent)"/>
+            <path d="M16 16L32 24L16 32V16Z" fill="var(--bg)" stroke="var(--bg)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+          <span class="text-xl font-bold">LearnFlow</span>
+        </div>
+      </div>
+      
+      <nav class="py-6">
+        <a href="#" class="sidebar-link active" data-section="courses">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          My Courses
+        </a>
+        <a href="#" class="sidebar-link" data-section="upload">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload Content
+        </a>
+        <a href="#" class="sidebar-link" data-section="library">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          Library
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-[var(--border)]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[var(--accent)] flex items-center justify-center text-[var(--bg)] font-bold" id="userAvatar">G</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium truncate" id="userName">Guest User</p>
+            <p class="text-xs text-[var(--muted)] truncate" id="userEmail">guest@learnflow.com</p>
+          </div>
+          <button id="logoutBtn" class="p-2 hover:bg-[var(--bg)] rounded-lg transition-colors" title="Logout">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <button id="mobileMenuBtn" class="fixed top-4 left-4 z-40 p-2 bg-[var(--card)] border border-[var(--border)] rounded-lg md:hidden">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <main class="main-content">
+      <!-- Courses Section -->
+      <section id="coursesSection" class="section">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-3xl font-bold">My Courses</h2>
+            <p class="text-[var(--muted)] mt-1">Continue your learning journey</p>
+          </div>
+          <button class="btn-primary" onclick="showUploadSection()">
+            <span class="flex items-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Content
+            </span>
+          </button>
+        </div>
+
+        <!-- Demo Banner -->
+        <div class="demo-banner flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--accent)] flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold">Demo Content Available</p>
+              <p class="text-sm text-[var(--muted)]">Intro PDF & Welcome Video are ready to view</p>
+            </div>
+          </div>
+          <button class="btn-secondary text-sm py-2 px-4" onclick="showSection('library')">View All Content</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div class="course-card p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(239,68,68,0.15)] flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-2xl font-bold" id="videoCount">0</p>
+                <p class="text-sm text-[var(--muted)]">Videos</p>
+              </div>
+            </div>
+          </div>
+          <div class="course-card p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(59,130,246,0.15)] flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-2xl font-bold" id="pdfCount">0</p>
+                <p class="text-sm text-[var(--muted)]">PDFs</p>
+              </div>
+            </div>
+          </div>
+          <div class="course-card p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(245,158,11,0.15)] flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-2xl font-bold" id="pptCount">0</p>
+                <p class="text-sm text-[var(--muted)]">Presentations</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Grid -->
+        <div id="courseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="emptyState" class="text-center py-16 hidden">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-2">No content yet</h3>
+          <p class="text-[var(--muted)] mb-6">Upload your first video, PDF, or presentation</p>
+          <button class="btn-primary" onclick="showUploadSection()">Upload Content</button>
+        </div>
+      </section>
+
+      <!-- Upload Section -->
+      <section id="uploadSection" class="section hidden">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold">Upload Content</h2>
+          <p class="text-[var(--muted)] mt-1">Add videos, PDFs, and presentations</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs mb-6 inline-flex">
+          <button class="tab active" data-tab="file">Upload File</button>
+          <button class="tab" data-tab="url">Add from URL</button>
+        </div>
+
+        <!-- File Upload Tab -->
+        <div id="fileTab" class="tab-content">
+          <div class="course-card p-8">
+            <div class="upload-zone" id="uploadZone">
+              <div class="mb-4">
+                <svg class="mx-auto" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <p class="text-lg font-medium mb-2">Drag and drop files here</p>
+              <p class="text-[var(--muted)] text-sm mb-4">or click to browse</p>
+              <p class="text-xs text-[var(--muted)]">Supported: MP4, PDF, PPT, PPTX (Max 500MB)</p>
+              <input type="file" id="fileInput" class="hidden" accept=".mp4,.pdf,.ppt,.pptx" multiple>
+            </div>
+
+            <div id="uploadProgress" class="mt-6 hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium" id="uploadFileName">file.mp4</span>
+                <span class="text-sm text-[var(--muted)]" id="uploadPercent">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- URL Upload Tab -->
+        <div id="urlTab" class="tab-content hidden">
+          <div class="course-card p-8">
+            <form id="urlForm" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-2 text-[var(--muted)]">Content Title</label>
+                <input type="text" id="urlTitle" class="input-field" placeholder="e.g., Introduction to Python" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2 text-[var(--muted)]">Content URL</label>
+                <input type="url" id="urlLink" class="input-field" placeholder="https://example.com/video.mp4" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2 text-[var(--muted)]">Content Type</label>
+                <select id="urlType" class="input-field" required>
+                  <option value="">Select type...</option>
+                  <option value="video">Video (MP4)</option>
+                  <option value="pdf">PDF Document</option>
+                  <option value="ppt">Presentation (PPT)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-primary w-full">Add Content</button>
+            </form>
+            
+            <div class="mt-6 p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
+              <p class="text-sm text-[var(--muted)]">
+                <strong class="text-[var(--fg)]">Tip:</strong> Use direct URLs to your files. For videos, use MP4 links. For PDFs, use direct PDF links.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick upload buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <button class="course-card p-6 text-left hover:border-[#ef4444] group" onclick="document.getElementById('videoInput').click()">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(239,68,68,0.15)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-semibold">Upload Video</p>
+                <p class="text-sm text-[var(--muted)]">MP4 files</p>
+              </div>
+            </div>
+            <input type="file" id="videoInput" class="hidden" accept=".mp4" multiple>
+          </button>
+
+          <button class="course-card p-6 text-left hover:border-[#3b82f6] group" onclick="document.getElementById('pdfInput').click()">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(59,130,246,0.15)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-semibold">Upload PDF</p>
+                <p class="text-sm text-[var(--muted)]">PDF documents</p>
+              </div>
+            </div>
+            <input type="file" id="pdfInput" class="hidden" accept=".pdf" multiple>
+          </button>
+
+          <button class="course-card p-6 text-left hover:border-[#f59e0b] group" onclick="document.getElementById('pptInput').click()">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-[rgba(245,158,11,0.15)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-semibold">Upload PPT</p>
+                <p class="text-sm text-[var(--muted)]">Presentations</p>
+              </div>
+            </div>
+            <input type="file" id="pptInput" class="hidden" accept=".ppt,.pptx" multiple>
+          </button>
+        </div>
+      </section>
+
+      <!-- Library Section -->
+      <section id="librarySection" class="section hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-3xl font-bold">Content Library</h2>
+            <p class="text-[var(--muted)] mt-1">All your learning materials in one place</p>
+          </div>
+          
+          <div class="flex gap-2 bg-[var(--card)] p-1 rounded-lg border border-[var(--border)]">
+            <button class="filter-btn px-4 py-2 rounded-md text-sm font-medium transition-colors bg-[var(--accent)] text-[var(--bg)]" data-filter="all">All</button>
+            <button class="filter-btn px-4 py-2 rounded-md text-sm font-medium transition-colors" data-filter="video">Videos</button>
+            <button class="filter-btn px-4 py-2 rounded-md text-sm font-medium transition-colors" data-filter="pdf">PDFs</button>
+            <button class="filter-btn px-4 py-2 rounded-md text-sm font-medium transition-colors" data-filter="ppt">PPTs</button>
+          </div>
+        </div>
+
+        <div id="libraryGrid" class="space-y-3"></div>
+        <div id="libraryEmpty" class="text-center py-16 hidden">
+          <p class="text-[var(--muted)]">No content in library</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div id="videoModal" class="modal-backdrop">
+    <div class="modal-content p-0" style="max-width: 900px;">
+      <div class="flex items-center justify-between p-4 border-b border-[var(--border)]">
+        <h3 class="font-bold" id="videoModalTitle">Video Title</h3>
+        <button onclick="closeVideoModal()" class="p-2 hover:bg-[var(--bg)] rounded-lg transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="video-container">
+        <video id="videoPlayer" controls class="w-full">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="p-4 border-t border-[var(--border)]">
+        <p class="text-sm text-[var(--muted)]" id="videoModalDesc"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Viewer Modal -->
+  <div id="pdfModal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 900px; height: 85vh;">
+      <div class="flex items-center justify-between p-4 border-b border-[var(--border)]">
+        <h3 class="font-bold" id="pdfModalTitle">PDF Title</h3>
+        <div class="flex items-center gap-2">
+          <a id="pdfDownloadLink" href="#" download class="btn-secondary text-sm py-2 px-4 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download
+          </a>
+          <button onclick="closePdfModal()" class="p-2 hover:bg-[var(--bg)] rounded-lg transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-4" style="height: calc(100% - 70px);">
+        <iframe id="pdfViewer" class="w-full h-full rounded-lg border border-[var(--border)]"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ DATA STORE ============
+    let contentLibrary = [];
+    let currentUser = null;
+
+    const demoUser = {
+      email: 'demo@learnflow.com',
+      password: 'demo123',
+      name: 'Demo User'
+    };
+
+    // Demo content with public URLs
+    const demoContent = [
+      {
+        id: 'demo-pdf-1',
+        title: 'Intro - Course Overview',
+        type: 'pdf',
+        size: '245 KB',
+        date: new Date().toLocaleDateString(),
+        data: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf',
+        isDemo: true,
+        description: 'Introduction to the course - Overview of what you will learn'
+      },
+    
+  {
+        id: 'demo-video-1',
+        title: 'Welcome - Getting Started',
+        type: 'video',
+        size: 'Stream',
+        date: new Date().toLocaleDateString(),
+        data: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        isDemo: true,
+        description: 'Welcome video - Learn how to navigate this course'
+      }
+    ];
+
+    // ============ DOM ELEMENTS ============
+    const loginPage = document.getElementById('loginPage');
+    const dashboardPage = document.getElementById('dashboardPage');
+    const loginForm = document.getElementById('loginForm');
+    const guestLogin = document.getElementById('guestLogin');
+    const loginError = document.getElementById('loginError');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const videoInput = document.getElementById('videoInput');
+    const pdfInput = document.getElementById('pdfInput');
+    const pptInput = document.getElementById('pptInput');
+
+    const videoModal = document.getElementById('videoModal');
+    const pdfModal = document.getElementById('pdfModal');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const pdfViewer = document.getElementById('pdfViewer');
+
+    // ============ PAGE NAVIGATION ============
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
+      document.getElementById(sectionId + 'Section').classList.remove('hidden');
+      
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.section === sectionId) link.classList.add('active');
+      });
+
+      if (sectionId === 'library') renderLibrary();
+    }
+
+    function showUploadSection() {
+      showSection('upload');
+    }
+
+    // ============ AUTHENTICATION ============
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (email === demoUser.email && password === demoUser.password) {
+        currentUser = { email, name: demoUser.name, isGuest: false };
+        loginSuccess();
+      } else {
+        loginError.textContent = 'Invalid email or password. Try the demo credentials.';
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    guestLogin.addEventListener('click', () => {
+      currentUser = { email: 'guest@learnflow.com', name: 'Guest User', isGuest: true };
+      loginSuccess();
+    });
+
+    function loginSuccess() {
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userEmail').textContent = currentUser.email;
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+      
+      showPage('dashboardPage');
+      loadFromStorage();
+      
+      // Merge demo content with user content
+      const userContent = contentLibrary.filter(c => !c.isDemo);
+      contentLibrary = [...demoContent, ...userContent];
+      
+      renderContent();
+    }
+
+    logoutBtn.addEventListener('click', () => {
+      currentUser = null;
+      showPage('loginPage');
+      loginError.classList.add('hidden');
+      loginForm.reset();
+    });
+
+    // ============ SIDEBAR NAVIGATION ============
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection(link.dataset.section);
+        sidebar.classList.remove('open');
+      });
+    });
+
+    mobileMenuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    // ============ TABS ============
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById(tab.dataset.tab + 'Tab').classList.remove('hidden');
+      });
+    });
+
+    // ============ URL FORM ============
+    document.getElementById('urlForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('urlTitle').value;
+      const url = document.getElementById('urlLink').value;
+      const type = document.getElementById('urlType').value;
+
+      if (!title || !url || !type) return;
+
+      const content = {
+        id: Date.now() + Math.random(),
+        title: title,
+        type: type,
+        size: 'URL',
+        date: new Date().toLocaleDateString(),
+        data: url,
+        isDemo: false,
+        isUrl: true
+      };
+
+      // Remove demo content and add user content
+      contentLibrary = contentLibrary.filter(c => !c.isDemo);
+      contentLibrary.push(content);
+      contentLibrary = [...demoContent, ...contentLibrary.filter(c => !c.isDemo)];
+      
+      saveToStorage();
+      renderContent();
+      
+      // Reset form
+      document.getElementById('urlForm').reset();
+      
+      // Show success
+      alert('Content added successfully!');
+      showSection('courses');
+    });
+
+    // ============ FILE UPLOAD ============
+    function setupUploadZone(zone, input) {
+      zone.addEventListener('click', () => input.click());
+      
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+      
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+      });
+      
+      input.addEventListener('change', () => handleFiles(input.files));
+    }
+
+    setupUploadZone(uploadZone, fileInput);
+
+    [videoInput, pdfInput, pptInput].forEach(input => {
+      input.addEventListener('change', () => handleFiles(input.files));
+    });
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        const validTypes = ['video/mp4', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+        
+        if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|pdf|ppt|pptx)$/i)) {
+          alert('Invalid file type: ' + file.name);
+          return;
+        }
+
+        const reader = new FileReader();
+        
+        const progressEl = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const uploadFileName = document.getElementById('uploadFileName');
+        const uploadPercent = document.getElementById('uploadPercent');
+        
+        progressEl.classList.remove('hidden');
+        uploadFileName.textContent = file.name;
+
+        reader.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressFill.style.width = percent + '%';
+            uploadPercent.textContent = percent + '%';
+          }
+        };
+
+        reader.onload = (e) => {
+          setTimeout(() => {
+            progressEl.classList.add('hidden');
+            progressFill.style.width = '0%';
+          }, 500);
+
+          let type = 'video';
+          if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) type = 'pdf';
+          else if (file.name.match(/\.(ppt|pptx)$/i)) type = 'ppt';
+
+          const content = {
+            id: Date.now() + Math.random(),
+            title: file.name.replace(/\.[^/.]+$/, ''),
+            type: type,
+            size: formatFileSize(file.size),
+            date: new Date().toLocaleDateString(),
+            data: e.target.result,
+            isDemo: false,
+            isUrl: false
+          };
+
+          contentLibrary = contentLibrary.filter(c => !c.isDemo);
+          contentLibrary.push(content);
+          contentLibrary = [...demoContent, ...contentLibrary.filter(c => !c.isDemo)];
+          
+          saveToStorage();
+          renderContent();
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // ============ CONTENT RENDERING ============
+    function renderContent() {
+      const courseGrid = document.getElementById('courseGrid');
+      const emptyState = document.getElementById('emptyState');
+
+      const videos = contentLibrary.filter(c => c.type === 'video');
+      const pdfs = contentLibrary.filter(c => c.type === 'pdf');
+      const ppts = contentLibrary.filter(c => c.type === 'ppt');
+
+      document.getElementById('videoCount').textContent = videos.length;
+      document.getElementById('pdfCount').textContent = pdfs.length;
+      document.getElementById('pptCount').textContent = ppts.length;
+
+      if (contentLibrary.length === 0) {
+        courseGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      courseGrid.innerHTML = contentLibrary.map(item => createContentCard(item)).join('');
+    }
+
+    function createContentCard(item) {
+      const badgeClass = 'badge-' + item.type;
+      const demoBadge = item.isDemo ? '<span class="badge badge-demo ml-2">Demo</span>' : '';
+      
+      let thumbnail = '';
+      if (item.type === 'video') {
+        thumbnail = `
+          <div class="thumbnail-video relative w-full h-40 bg-[var(--bg)] flex items-center justify-center cursor-pointer" onclick="openContent('${item.id}')">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            <div class="play-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--bg)" stroke="var(--bg)" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+          </div>`;
+      } else if (item.type === 'pdf') {
+        thumbnail = `
+          <div class="w-full h-40 bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center cursor-pointer" onclick="openContent('${item.id}')">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <text x="12" y="18" text-anchor="middle" fill="white" font-size="6" font-weight="bold">PDF</text>
+            </svg>
+          </div>`;
+      } else {
+        thumbnail = `
+          <div class="w-full h-40 bg-gradient-to-br from-amber-900 to-amber-800 flex items-center justify-center cursor-pointer" onclick="openContent('${item.id}')">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+              <text x="12" y="12" text-anchor="middle" fill="white" font-size="5" font-weight="bold">PPT</text>
+            </svg>
+          </div>`;
+      }
+
+      return `
+        <div class="course-card">
+          ${thumbnail}
+          <div class="p-4">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <span class="badge ${badgeClass}">${item.type}</span>
+              ${demoBadge}
+              <span class="text-xs text-[var(--muted)]">${item.size}</span>
+            </div>
+            <h3 class="font-semibold mb-1 truncate cursor-pointer hover:text-[var(--accent)]" onclick="openContent('${item.id}')">${item.title}</h3>
+            <p class="text-sm text-[var(--muted)]">Added ${item.date}</p>
+            <div class="flex gap-2 mt-4">
+              <button onclick="openContent('${item.id}')" class="btn-primary text-sm py-2 px-4 flex-1">View</button>
+              ${!item.isDemo ? `<button onclick="deleteContent('${item.id}')" class="btn-secondary btn-danger text-sm py-2 px-3" title="Delete">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ============ LIBRARY ============
+    function renderLibrary(filter = 'all') {
+      const libraryGrid = document.getElementById('libraryGrid');
+      const libraryEmpty = document.getElementById('libraryEmpty');
+      
+      let filtered = contentLibrary;
+      if (filter !== 'all') filtered = contentLibrary.filter(item => item.type === filter);
+
+      if (filtered.length === 0) {
+        libraryGrid.innerHTML = '';
+        libraryEmpty.classList.remove('hidden');
+        return;
+      }
+
+      libraryEmpty.classList.add('hidden');
+      libraryGrid.innerHTML = filtered.map(item => createLibraryItem(item)).join('');
+    }
+
+    function createLibraryItem(item) {
+      const badgeClass = 'badge-' + item.type;
+      const demoBadge = item.isDemo ? '<span class="badge badge-demo ml-2">Demo</span>' : '';
+      
+      return `
+        <div class="file-item">
+          <div class="w-10 h-10 rounded-lg bg-[var(--card)] flex items-center justify-center flex-shrink-0">
+            ${getTypeIconSmall(item.type)}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">${item.title}</p>
+            <div class="flex items-center gap-2 text-xs text-[var(--muted)] flex-wrap">
+              <span class="badge ${badgeClass}">${item.type}</span>
+              ${demoBadge}
+              <span>${item.size}</span>
+              <span>${item.date}</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="openContent('${item.id}')" class="btn-primary text-sm py-2 px-4">Open</button>
+            ${!item.isDemo ? `<button onclick="deleteContent('${item.id}')" class="btn-secondary btn-danger text-sm py-2 px-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function getTypeIconSmall(type) {
+      const icons = {
+        video: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+        pdf: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+        ppt: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+      };
+      return icons[type] || icons.pdf;
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-[var(--accent)]', 'text-[var(--bg)]'));
+        btn.classList.add('bg-[var(--accent)]', 'text-[var(--bg)]');
+        renderLibrary(btn.dataset.filter);
+      });
+    });
+
+    // ============ CONTENT VIEWERS ============
+    function openContent(id) {
+      const item = contentLibrary.find(c => c.id == id);
+      if (!item) return;
+
+      if (item.type === 'video') {
+        openVideoModal(item);
+      } else if (item.type === 'pdf') {
+        openPdfModal(item);
+      } else if (item.type === 'ppt') {
+        downloadFile(item);
+      }
+    }
+
+    function openVideoModal(item) {
+      document.getElementById('videoModalTitle').textContent = item.title;
+      document.getElementById('videoModalDesc').textContent = item.description || 'Video content';
+      videoPlayer.src = item.data;
+      videoModal.classList.add('active');
+    }
+
+    function closeVideoModal() {
+      videoModal.classList.remove('active');
+      videoPlayer.pause();
+      videoPlayer.src = '';
+    }
+
+    function openPdfModal(item) {
+      document.getElementById('pdfModalTitle').textContent = item.title;
+      pdfViewer.src = item.data;
+      
+      const downloadLink = document.getElementById('pdfDownloadLink');
+      downloadLink.href = item.data;
+      downloadLink.download = item.title + '.pdf';
+      
+      pdfModal.classList.add('active');
+    }
+
+    function closePdfModal() {
+      pdfModal.classList.remove('active');
+      pdfViewer.src = '';
+    }
+
+    function downloadFile(item) {
+      const link = document.createElement('a');
+      link.href = item.data;
+      link.download = item.title + '.' + (item.type === 'ppt' ? 'pptx' : item.type);
+      link.click();
+    }
+
+    // ============ DELETE CONTENT ============
+    function deleteContent(id) {
+      if (confirm('Are you sure you want to delete this item?')) {
+        contentLibrary = contentLibrary.filter(c => c.id != id);
+        saveToStorage();
+        renderContent();
+        renderLibrary();
+      }
+    }
+
+    // ============ LOCAL STORAGE ============
+    function saveToStorage() {
+      try {
+        const userContent = contentLibrary.filter(c => !c.isDemo);
+        localStorage.setItem('lms_content', JSON.stringify(userContent));
+      } catch (e) {
+        console.warn('Storage quota exceeded');
+        const userContent = contentLibrary.filter(c => !c.isDemo).slice(-5);
+        localStorage.setItem('lms_content', JSON.stringify(userContent));
+      }
+    }
+
+    function loadFromStorage() {
+      const stored = localStorage.getItem('lms_content');
+      if (stored) {
+        try {
+          contentLibrary = JSON.parse(stored);
+        } catch (e) {
+          contentLibrary = [];
+        }
+      }
+    }
+
+    // ============ CLOSE MODALS ============
+    videoModal.addEventListener('click', (e) => {
+      if (e.target === videoModal) closeVideoModal();
+    });
+
+    pdfModal.addEventListener('click', (e) => {
+      if (e.target === pdfModal) closePdfModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeVideoModal();
+        closePdfModal();
+      }
+    });
+  </script>
+</body>
+</html>
