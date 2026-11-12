@@ -120,22 +120,11 @@
   <div class="fixed bottom-[-10%] right-[-10%] w-72 h-72 sm:w-[26rem] sm:h-[26rem] rounded-full bg-gold-500/15 blur-3xl pointer-events-none animate-float-delayed z-0"></div>
 
   <!-- Top Utility Bar (Mobile & Desktop Friendly) -->
-  <header class="relative z-10 w-full max-w-md mx-auto px-4 pt-4 sm:pt-6 flex items-center justify-between text-xs text-slate-300">
-    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md">
+  <header class="relative z-10 w-full max-w-md mx-auto px-4 pt-4 sm:pt-6 flex items-center justify-center text-xs text-slate-300">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="font-medium tracking-wide text-slate-100">LMS Portal Online</span>
+      <span class="font-medium tracking-wide text-slate-100">Student &amp; Admin LMS Portal Online</span>
     </div>
-    <button 
-      type="button" 
-      id="quickFillBtn"
-      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-500/15 hover:bg-gold-500/25 active:scale-95 border border-gold-400/30 text-gold-300 font-medium transition-all cursor-pointer"
-      title="Auto-fill authorized portal credentials"
-    >
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-      <span>Quick Fill</span>
-    </button>
   </header>
 
   <!-- Main Centered Mobile-First Login Container -->
@@ -263,14 +252,9 @@
 
           <!-- Password Input Group -->
           <div class="space-y-1.5">
-            <div class="flex items-center justify-between px-1">
-              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                Password
-              </label>
-              <button type="button" id="hintToggleBtn" class="text-xs font-semibold text-royal-600 hover:text-royal-700 active:underline cursor-pointer">
-                Need credentials?
-              </button>
-            </div>
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 ml-1">
+              Password
+            </label>
             <div class="relative group">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-royal-600 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -304,18 +288,6 @@
                 </svg>
               </button>
             </div>
-          </div>
-
-          <!-- Interactive Credential Hint Drawer (Collapsible) -->
-          <div id="credentialHintDrawer" class="hidden rounded-2xl bg-royal-50 border border-royal-200 p-3 text-xs text-navy-900 flex items-center justify-between gap-2">
-            <div>
-              <span class="font-bold text-royal-700">Portal Access:</span>
-              <span class="ml-1">User: <code class="px-1.5 py-0.5 bg-white rounded border border-royal-200 font-bold">root</code></span>
-              <span class="ml-1">Pass: <code class="px-1.5 py-0.5 bg-white rounded border border-royal-200 font-bold">gwit@ek0823</code></span>
-            </div>
-            <button type="button" id="applyHintBtn" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-royal-600 text-white font-semibold hover:bg-royal-700 active:scale-95 transition-all cursor-pointer">
-              Fill
-            </button>
           </div>
 
           <!-- Remember Me Toggle & Security Note -->
@@ -429,10 +401,6 @@
       const submitBtn = document.getElementById("submitBtn");
       const redirectStateView = document.getElementById("redirectStateView");
       const redirectProgressBar = document.getElementById("redirectProgressBar");
-      const quickFillBtn = document.getElementById("quickFillBtn");
-      const hintToggleBtn = document.getElementById("hintToggleBtn");
-      const credentialHintDrawer = document.getElementById("credentialHintDrawer");
-      const applyHintBtn = document.getElementById("applyHintBtn");
       const rememberMeCheckbox = document.getElementById("rememberMe");
 
       // Set current year dynamically
@@ -457,25 +425,7 @@
         eyeClosedIcon.classList.toggle("hidden", !isPassword);
       });
 
-      // 2. Credential Hint & Quick-Fill Helpers
-      function fillAuthorizedCredentials() {
-        usernameInput.value = VALID_USER;
-        passwordInput.value = VALID_PASS;
-        hideAlert();
-        usernameInput.focus();
-      }
-
-      quickFillBtn.addEventListener("click", fillAuthorizedCredentials);
-      applyHintBtn.addEventListener("click", function () {
-        fillAuthorizedCredentials();
-        credentialHintDrawer.classList.add("hidden");
-      });
-
-      hintToggleBtn.addEventListener("click", function () {
-        credentialHintDrawer.classList.toggle("hidden");
-      });
-
-      // 3. Button Ripple Effect for Tactile Mobile Feedback
+      // 2. Button Ripple Effect for Tactile Mobile Feedback
       submitBtn.addEventListener("click", function (e) {
         const rect = submitBtn.getBoundingClientRect();
         const ripple = document.createElement("span");
